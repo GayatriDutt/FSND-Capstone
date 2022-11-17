@@ -2,11 +2,16 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import Actor, Movie, setup_db, db_drop_and_create_all_for_local_test
+from models import *
+from flask_migrate import Migrate
+from flask_moment import Moment
 
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
+  moment = Moment(app)
+  db.init_app(app)
+  migrate = Migrate(app, db)
   setup_db(app)
   CORS(app)
 
@@ -102,7 +107,7 @@ def create_app(test_config=None):
       "success": True,
       "actor": actor.format()
     })
-    
+
   #DELETE /movies/{id}
   @app.route("/movies/<int:movie_id>", methods=["DELETE"])
   def delete_movie(payload, movie_id):
@@ -119,7 +124,7 @@ def create_app(test_config=None):
     })
   return app
 
-APP = create_app()
+app = create_app()
 
 if __name__ == '__main__':
-    APP.run(host='0.0.0.0', port=8080, debug=True)
+    app.run()
