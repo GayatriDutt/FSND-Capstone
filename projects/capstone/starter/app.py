@@ -29,7 +29,7 @@ def create_app(test_config=None):
 
   #GET /actors
   @app.route("/actors", methods=["GET"])
-  def get_actors(payload):
+  def get_actors():
     actors = Actor.query.all()
     
     formatted_actors = []
@@ -43,7 +43,7 @@ def create_app(test_config=None):
 
   #GET /movies
   @app.route("/movies", methods=["GET"])
-  def get_movies(payload):
+  def get_movies():
     movies = Movie.query.all()
     formatted_movies = []
     for movie in movies:
@@ -55,7 +55,7 @@ def create_app(test_config=None):
 
   #POST /actors
   @app.route("/actors", methods=["POST"])
-  def add_actor(payload):
+  def add_actor():
     request_data = request.get_json()
     
     if request_data is None:
@@ -88,7 +88,7 @@ def create_app(test_config=None):
 
   #PATCH /actors/{id}
   @app.route("/actors/<int:actor_id>", methods=["PATCH"])
-  def update_actor(payload, actor_id):
+  def update_actor(actor_id):
     actor = Actor.query.get(actor_id)
     
     if not actor:
@@ -112,7 +112,7 @@ def create_app(test_config=None):
 
   #DELETE /movies/{id}
   @app.route("/movies/<int:movie_id>", methods=["DELETE"])
-  def delete_movie(payload, movie_id):
+  def delete_movie(movie_id):
     movie = Movie.query.get(movie_id)
     
     if movie is None:
@@ -131,7 +131,7 @@ def create_app(test_config=None):
   @app.errorhandler(500)
   def internal_server(error):
     return jsonify({"success": False, "error": 500, "message": "Internal server error"}), 500
-    
+
   return app
 
 app = create_app()
