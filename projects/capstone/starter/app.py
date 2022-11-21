@@ -5,17 +5,27 @@ from flask_cors import CORS
 from models import *
 from flask_migrate import Migrate
 from flask_moment import Moment
+from auth import requires_auth, AuthError
 
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
-  moment = Moment(app)
-  db.init_app(app)
-  migrate = Migrate(app, db)
   setup_db(app)
   CORS(app)
 
   
+  API_AUDIENCE = os.environ.get('API_AUDIENCE')
+  AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
+  AUTH0_CLIENT_ID = os.environ.get('AUTH0_CLIENT_ID')
+  AUTH0_CALLBACK_URL = os.environ.get('AUTH0_CALLBACK_URL')
+
+  db_drop_and_create_all()
+
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
+    return response
 
   #GET /actors
   @app.route("/actors", methods=["GET"])
@@ -52,25 +62,21 @@ def create_app(test_config=None):
       abort(400)
     
     name = request_data.get("name"),
-    age = request_data.get("age"),
-    gender = request_data.get("gender"),
     movie_ids = request_data.get("movies", [])
     
-    casted_movies = []
+    list_movies = []
     
     for movie_id in movie_ids:
       movie = Movie.query.get(movie_id)
       if movie is None:
         abort(404)
       else:
-        casted_movies.append(movie)
+        list_movies.append(movie)
       
       
     new_actor = Actor(
       name=name,
-      age=age,
-      gender=gender,
-      movies = casted_movies
+      movies = list_movies
     )
     
     new_actor.insert()
@@ -89,8 +95,6 @@ def create_app(test_config=None):
       abort(404)
       
     name = request.get_json().get("name", actor.name)
-    age = request.get_json().get("age", actor.age)
-    gender = request.get_json().get("gender", actor.gender)
     movies = request.get_json().get("movies", [])
     
     if movies is not None:
@@ -99,8 +103,6 @@ def create_app(test_config=None):
       formatted_movies = actor.movies
       
     actor.name = name
-    actor.age = age
-    actor.gender = gender
     actor.movies = formatted_movies
     actor.update()
     return jsonify({
@@ -122,6 +124,14 @@ def create_app(test_config=None):
       "success": True,
       "deleted": movie.id
     })
+  
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({"success": False, "error": 404, "message": "Not found"}), 404
+  @app.errorhandler(500)
+  def internal_server(error):
+    return jsonify({"success": False, "error": 500, "message": "Internal server error"}), 500
+    
   return app
 
 app = create_app()

@@ -3,12 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, ForeignKey
 from flask_migrate import Migrate
 
-database_path = "postgresql://postgres:1234@localhost:5432/capstone"
+#database_path = "postgresql://postgres:1234@localhost:5432/capstone"
 
-#database_path = os.environ.get('DATABASE_URL')
+database_path = os.environ.get('DATABASE_URL')
 
-#if database_path is None:
-    #database_path = "postgresql://postgres:password@localhost:5432/casting_agency"
+if database_path is None:
+    database_path = "postgresql://postgres:1234@localhost:5432/capstone"
     
 
 db = SQLAlchemy()
@@ -19,7 +19,7 @@ def setup_db(app):
     db.app = app
     db.init_app(app)
     
-def db_drop_and_create_all_for_local_test():
+def db_drop_and_create_all():
     db.drop_all()
     db.create_all()
     
@@ -64,8 +64,6 @@ class Actor(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    age = db.Column(db.String, nullable=True)
-    gender = db.Column(db.String, nullable=False)
     movies = db.relationship("Movie", secondary=actor_movie, backref=db.backref("actors", lazy=True))
     
     def insert(self):
@@ -86,8 +84,6 @@ class Actor(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "age": self.age,
-            "gender": self.gender,
             "movies": formatted_movies
         }
     
