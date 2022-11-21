@@ -128,10 +128,18 @@ def create_app(test_config=None):
   @app.errorhandler(404)
   def not_found(error):
     return jsonify({"success": False, "error": 404, "message": "Not found"}), 404
-
+  @app.errorhandler(422)
+  def unprocessable_entity(error):
+    return jsonify({"success": False, "error": 422, "message": "Unprocessable entity"}), 422
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({"success": False, "error": 400, "message": "Baqd request"}), 400  
   def internal_server(error):
     return jsonify({"success": False, "error": 500, "message": "Internal server error"}), 500
-
+  @app.errorhandler(AuthError)
+  def handle_auth_error(e):
+    return jsonify({"success": False, "error": e.status_code, "message": e.error['description'],}), e.status_code
+  
   return app
 
 app = create_app()

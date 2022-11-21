@@ -1,6 +1,6 @@
 ## Udacity Full Stack Web Development - Capstone Project
-# Project
-The context of this application is a casting agency system that manages actors and movies. The following database tables exist:
+# Project and motivation
+The context of this application is a casting agency system that manages actors and movies. I have done this project as part of my Udacity Fullstack web development nanodegree and serves to provide actors and directors with a platform to manage actor details and corresponding movies. The following database tables exist:
 
 Movie
 Actor
@@ -127,5 +127,29 @@ Sample response
     "success": true
 }
 
+# RBAC credentials and roles
 
+Auth0 was set up to manage role-based access control for these users:
+Director, Actor.
+
+Permissions:
+The actor can do the following:: post:actors (allows them to add a new actor), delete:actors (allows them to remove an actor)
+The director can do the follwoing:: post:movies (allows them to add movies), patch:actors(allows them to change the details of a particular actor), delete:movies (allows them to delete a movie)
+
+There are 2 endpoints get:actors and get:movies that do not need authorisation.
+
+
+To deploy on Heroku, the following commands were executed:
+- pip install -r requirements.txt
+-  chmod +x setup.sh
+- source setup.sh
+- python manage.py db init, python manage.py db migrate, python manage.py db upgrade
+- heroku create capstone10051997 --buildpack heroku/python
+- heroku addons:create heroku-postgresql:hobby-dev --app capstone10051997
+- heroku config --app capstone10051997
+- export DATABASE_URL="postgres://amugtfglhcsuaj:110076319b6270f53d1bccc798dfd0e47f601853637c92eae0032374b1c98c23@ec2-44-205-64-253.compute-1.amazonaws.com:5432/dfvv08sth7v90t"
+- git add .
+- git status
+- git commit -m "someMessage"
+- git push heroku master
 The application is deployed on Heroku -  https://capstone10051997.herokuapp.com/
