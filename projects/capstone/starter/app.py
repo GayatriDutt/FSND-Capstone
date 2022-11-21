@@ -125,13 +125,10 @@ def create_app(test_config=None):
       "deleted": movie.id
     })
   
-  '''@app.errorhandler(404)
-  def not_found(error):
-    return jsonify({"success": False, "error": 404, "message": "Not found"}), 404'''
   @app.errorhandler(404)
   def not_found(error):
-    return jsonify({"success": True, "message": "Welcome to my capstone project on casting agency"})
-  @app.errorhandler(500)
+    return jsonify({"success": False, "error": 404, "message": "Not found"}), 404
+
   def internal_server(error):
     return jsonify({"success": False, "error": 500, "message": "Internal server error"}), 500
 
